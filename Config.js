@@ -72,5 +72,51 @@ export default class Config {
         return this._config;
     }
 
+    getRepositoryConnenction() {
+        let prefix = `${this.prefixMessage} function checkRepositoryConnenction`;
+        Logging.getInstance().debug(`${prefix} start `);
+        let configConnection = null;
+        try {
+            if (!this._config) {
+                throw `configurazione non impostata `;
+            }
+            if (!"repository" in this._config || !this._config.repository) {
+                throw `repository non configurato `;
+            }
+            let repository = this._config.repository;
+            if (!"database" in repository || !repository.database) {
+                throw `repository database non configurato `;
+            }
+            let database = repository.database;
+            if (!"connection" in database || !database.connection) {
+                throw `repository database connection non configurato `;
+            }
+            let connection = database.connection;
+            if (!"username" in connection || !connection.username) {
+                throw `repository database connection username non configurato `;
+            }
+            if (!"password" in connection || !connection.password) {
+                throw `repository database connection password non configurato `;
+            }
+            if (!"hostname" in connection || !connection.hostname) {
+                throw `repository database connection hostname non configurato `;
+            }
+            if (!"database" in connection || !connection.database) {
+                throw `repository database connection database non configurato `;
+            }
+            if (!"dialect" in connection || !connection.dialect) {
+                throw `repository database connection dialect non configurato `;
+            }
+            if (!"testSqlStatement" in connection || !connection.testSqlStatement) {
+                throw `repository database connection testSqlStatement non configurato `;
+            }
+            configConnection = this._config.repository.database.connection;
+        } catch (error) {
+            this.logError(prefix, error);
+        }
+        Logging.getInstance().debug(`${prefix} stop`);
+        return configConnection;
+    }
+
 }
 

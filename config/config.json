@@ -1,2 +1,14 @@
 {
+        "repository": {
+        "database": {
+            "connection": {
+                "username": "test",
+                "password": "test",
+                "hostname": "mariadb",
+                "database": "test",
+                "dialect": "mariadb",
+                "testSqlStatement": "SELECT VERSION();"
+            }
+        }
+    }
 }

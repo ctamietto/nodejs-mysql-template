@@ -1,7 +1,7 @@
 import express from 'express';
 import Config from './Config.js';
 import Routes from './routes/Routes.js';
-
+import Database from './Database.js';
 
 const app = express();
 const port = 3000;
@@ -11,6 +11,10 @@ const apiPath = "/api";
 // leggi la configurazione
 let cfgi = await Config.getInstance();
 await cfgi.readConfig();
+
+// inizializza servizio database
+let db = Database.getInstance();
+await db.initialize();
 
 // INIZIALIZZA EXPRESS
 app.use(express.json({ limit: '50mb' }));
