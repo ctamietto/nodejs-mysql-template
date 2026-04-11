@@ -1,0 +1,10 @@
+posizionarsi nella root del progetto ed emettere il seguente comando 
+per il build manuale dell'immagine
+
+docker build -t nodejs-mysql-template -f docker/Dockerfile .
+
+per creare una istanza del container
+
+docker run  -it  --name nodejs-mysql-template nodejs-mysql-template 
+
+

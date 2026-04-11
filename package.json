@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "debug": "node --nolazy --inspect=0.0.0.0:9229 server.js"
+  },
+  "dependencies": {
+    "cjson": "^0.5.0",
+    "express": "^5.2.1",
+    "log4js": "^6.9.1"
+  }
+}
