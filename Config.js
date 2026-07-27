@@ -1,4 +1,4 @@
-import cjson from 'cjson';
+import cjson, { load } from 'cjson';
 import fs from 'fs';
 import Logging from './Logging.js';
 
@@ -27,16 +27,16 @@ export default class Config {
         throw (err);
     }
 
-    static async getInstance() {
+    static getInstance() {
         let prefix = `class Config function getInstance`;
         Logging.getInstance().debug(`${prefix} start `);
         try {
             if (this.instance === null) {
                 this.instance = new Config();
             }
-            if (this._config) {
-                this._config = await this.instance.readConfig();
-            }
+            //if (this._config) {
+            //    this._config = await this.instance.readConfig();
+            //}
         } catch (error) {
             this.logError(prefix, error);
         }
@@ -73,7 +73,7 @@ export default class Config {
     }
 
     getRepositoryConnenction() {
-        let prefix = `${this.prefixMessage} function checkRepositoryConnenction`;
+        let prefix = `${this.prefixMessage} function getRepositoryConnenction`;
         Logging.getInstance().debug(`${prefix} start `);
         let configConnection = null;
         try {
@@ -116,6 +116,58 @@ export default class Config {
         }
         Logging.getInstance().debug(`${prefix} stop`);
         return configConnection;
+    }
+
+    getLoadModulesConfig() {
+        let prefix = `${this.prefixMessage} function getLoadModulesConfig`;
+        Logging.getInstance().debug(`${prefix} start `);
+        let loadModulesConfig = null;
+        try {
+            if (!this._config) {
+                throw `configurazione non impostata `;
+            }
+            if ("modules" in this._config && 
+                this._config.modules !== undefined &&
+                this._config.modules !== null) {
+                    Logging.getInstance().debug(`${prefix} modules configuration found `);
+                    loadModulesConfig = this._config
+                    let modules = this._config.modules;
+                    if ("models" in modules && 
+                        modules.models !== undefined &&
+                        modules.models !== null
+                    ) {
+                        Logging.getInstance().debug(`${prefix} models configuration found `);
+                        let models = modules.models;
+                        if (!Array.isArray(models)) {
+                            throw `modules models must be an array `;
+                        }
+                        if (models.length <= 0) {
+                            throw `modules models is an empty array `;
+                        }
+                        for (const model of models) {
+                            if (!"name" in model || model.name === undefined || model.name === null || model.name === '') {
+                                throw `found modules models with name not set `;
+                            }
+                            if (!"path" in model || model.path === undefined || model.path === null || model.path === '') {
+                                throw `found modules models with path not set `;
+                            }
+                            Logging.getInstance().debug(`${prefix} validating model '${model.name}' with path '${model.path}' `);
+                            // check if the directory exists
+                            let isDirectory = fs.statSync(model.path).isDirectory();
+                            if (!isDirectory) {
+                                throw ` the path ${fullPath} is not a directory`;
+                            }
+                        }
+                    }
+                    loadModulesConfig = modules;
+            } else {
+            Logging.getInstance().debug(`${prefix} no modules configuration found `);
+            }
+        } catch (error) {
+            this.logError(prefix, error);
+        }
+        Logging.getInstance().debug(`${prefix} stop `);
+        return loadModulesConfig;
     }
 
 }

@@ -6,8 +6,8 @@
     "configurations": [
 
         {
-            "address": "nodejs-mysql-app",
-            "localRoot": "/config/workspace/nodejs-mysql-src",
+            "address": "nodejs-comuni",
+            "localRoot": "/config/workspace/nodejs-comuni-src",
             "name": "Node.js: Remote Attach",
             "port": 9229,
             "remoteRoot": "/app",

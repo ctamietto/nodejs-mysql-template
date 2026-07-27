@@ -1,14 +1,22 @@
 {
-        "repository": {
+    "repository": {
         "database": {
             "connection": {
-                "username": "test",
-                "password": "test",
-                "hostname": "mariadb",
-                "database": "test",
+                "username": "comuni",
+                "password": "comuni",
+                "hostname": "mariadb-comuni",
+                "database": "comuni",
                 "dialect": "mariadb",
                 "testSqlStatement": "SELECT VERSION();"
             }
         }
+    },
+    "modules": {
+        "models": [
+            {
+                "name": "comuni",
+                "path": "/app/models/comuni"
+            }
+        ]
     }
 }

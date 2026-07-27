@@ -1,6 +1,8 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import Config from './Config.js';
 import Logging from './Logging.js';
+//import gi_nazioni from './models/gi_nazioni.js';
+import LoadModulesUtils from './LoadModulesUtils.js';
 
 export default class Database {
     // Static variable to hold the single instance (private with # in modern JS)
@@ -139,10 +141,22 @@ export default class Database {
             await this._sequelize.authenticate();
             Logging.getInstance().debug(`${prefix} connection successfull`);
 
-            //Logging.getInstance().debug(`${prefix} trying to initialize model test`);
-            //test.initialize(this._sequelize)
-            //Logging.getInstance().debug(`${prefix} module test initialized`);
-
+            //Logging.getInstance().debug(`${prefix} trying to initialize model gi_nazioni`);
+            //gi_nazioni.initialize(this._sequelize)
+            //Logging.getInstance().debug(`${prefix} module gi_nazioni initialized`);
+            let lmu = LoadModulesUtils.getInstance();
+            let models = lmu.getModels();
+            if (models !== undefined && models !== null && models.length > 0) {
+                Logging.getInstance().debug(`${prefix} found models ${JSON.stringify(models)}`);
+                for (const model of models) {
+                    let modelClass = lmu.getModelClass(model);
+                    Logging.getInstance().debug(`${prefix} trying to initialize model ${model}`);
+                    modelClass.initialize(this._sequelize);
+                    Logging.getInstance().debug(`${prefix} module ${model} initialized`);
+                }                
+            } else {
+                Logging.getInstance().warn(`${prefix} no models found `);
+            }
 
         } catch (error) {
             this.logError(prefix, error);

@@ -1,5 +1,6 @@
 import Logging from "../Logging.js";
 import AdminRoutes from "./AdminRoutes.js";
+import GenericBoRoutes from "./GenericBORoutes.js";
 
 export default class Routes {
     // Static variable to hold the single instance (private with # in modern JS)
@@ -46,6 +47,10 @@ export default class Routes {
         //  API CONFIGURAZIONE AMMINISTRAZIONE
         let ar = new AdminRoutes();
         ar.setupAdminRoutes(app,apiPath,apiVersion);
+
+        // API Generic BO
+        let gbor = new GenericBoRoutes();
+        gbor.setup(app,apiPath,apiVersion);
 
         Logging.getInstance().debug(`${prefix} stop`);
     }
