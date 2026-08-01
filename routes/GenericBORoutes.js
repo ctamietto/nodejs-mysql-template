@@ -21,7 +21,7 @@ export default class GenericBoRoutes extends MyBase {
                 let gbo = new GenericBo();
                 result.data = await gbo.list(params);
             } catch (error) {
-                this.logError(prefix, error);
+                this.logError(prefix, error,false);
                 result.status = 'KO';
                 let typeofErr = typeof error;
                 if (typeofErr == "string") {

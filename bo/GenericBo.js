@@ -10,14 +10,42 @@ export default class GenericBo extends MyBase {
         super();
     }
 
+    getOrder(params) {
+        let message = `${this.prefixMessage} function getOffset `;
+        Logging.getInstance().debug(`${message} start `);
+        let order = null;
+
+        try {
+            let sortField = null;
+            if ("sortField" in params && params.sortField !== null && params.sortField !== "") {
+                sortField = params.sortField;
+            }
+
+            let sortOrder = null;
+            if ("sortOrder" in params && params.sortOrder !== null && params.sortOrder !== "") {
+                if (params.sortOrder === "desc" || params.sortOrder === "DESC") {
+                    sortOrder = "DESC"
+                } else {
+                    sortOrder = "ASC"
+                }
+            }
+
+            if (sortOrder != null && sortField != null) {
+                order = [[sortField, sortOrder]];
+            }
+        } catch (error) {
+            this.logError(message, error);
+        } finally {
+        }
+        Logging.getInstance().debug(`${message} end`);
+        return order;
+    }
+
     getOffset(params) {
         let message = `${this.prefixMessage} function getOffset `;
         Logging.getInstance().debug(`${message} start `);
         let offset = 0;
         try {
-        } catch (error) {
-            this.logError(message, error);
-        } finally {
             if ("offset" in params && params.offset !== undefined && params.offset !== null) {
                 offset = params.offset;
                 if (!Number.isInteger(offset)) {
@@ -43,6 +71,9 @@ export default class GenericBo extends MyBase {
                     throw new Error(error_message);
                 }
             }
+        } catch (error) {
+            this.logError(message, error);
+        } finally {
         }
         Logging.getInstance().debug(`${message} end`);
         return offset;
@@ -90,7 +121,7 @@ export default class GenericBo extends MyBase {
     async list(params) {
         let message = `${this.prefixMessage} function list `;
         Logging.getInstance().debug(`${message} start , params : ${JSON.stringify(params)}`);
-        let data = { list: [] };
+        let data = { list: [], count: 0 };
         try {
             if (params === undefined || params === null) {
                 let error_message = `params must be set`;
@@ -109,6 +140,7 @@ export default class GenericBo extends MyBase {
             }
             let limit = this.getLimit(queryParams);
             let offset = this.getOffset(queryParams);
+            let order = this.getOrder(queryParams);
 
             let findAllParams = {
                 raw: true
@@ -117,7 +149,12 @@ export default class GenericBo extends MyBase {
                 findAllParams.limit = limit;
                 findAllParams.offset = offset;
             }
-            data.list = await modelClass.findAll(findAllParams);
+            if (order != null) {
+                findAllParams.order = order;
+            }
+            const { rows, count } = await modelClass.findAndCountAll(findAllParams);
+            data.list = rows;
+            data.count = count;
         } catch (error) {
             this.logError(message, error);
         } finally {
