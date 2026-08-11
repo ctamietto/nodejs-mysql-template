@@ -1,6 +1,7 @@
 import Logging from "../Logging.js";
 import LoadModulesUtils from "../LoadModulesUtils.js";
 import MyBase from "../MyBase.js";
+import { Op } from 'sequelize';
 
 export default class GenericBo extends MyBase {
     prefixMessage = "class GenericBo";
@@ -8,6 +9,64 @@ export default class GenericBo extends MyBase {
 
     constructor() {
         super();
+    }
+
+    buildSimpleFilter(params) {
+        let message = `${this.prefixMessage} function buildWhereClause `;
+        Logging.getInstance().debug(`${message} start `);
+        let where = {
+            [Op.and]: [
+
+            ]
+        };
+        try {
+            if ("filters" in params && params.filters !== undefined && params.filters !== null) {
+                let filters = params.filters;
+                if (!Array.isArray(filters)) {
+                    let error_message = `params filter must be an array`;
+                    throw new Error(error_message);
+                }
+                for (const filter of filters) {
+                    if (!("name" in filter) || filter.name === undefined || filter.name === null) {
+                        let error_message = `filter object must have a property name set`;
+                        throw new Error(error_message);
+                    }
+                    let name = filter.name;
+                    if (!("operator" in filter) || filter.operator === undefined || filter.operator === null) {
+                        let error_message = `filter object with name '${name}' must have a property operator set`;
+                        throw new Error(error_message);
+                    }
+                    let operator = filter.operator;
+                    if (!("value" in filter) || filter.value === undefined || filter.value === null) {
+                        let error_message = `filter object with name '${name}' must have a property value set`;
+                        throw new Error(error_message);
+                    }
+                    let value = filter.value;
+
+                    let sOperator = null;
+                    switch (operator) {
+                        case "equal":
+                            sOperator = Op.eq;
+                            break;
+                        case "contains":
+                            sOperator = Op.like;
+                            value = `%${value}%`;
+                            break;
+                        default:
+                            let error_message = `unespected value of operator ( '${operator}' )`;
+                            throw new Error(error_message);
+                    }
+                    where[Op.and].push({
+                        [name]: { [sOperator]: value }
+                    });
+                }
+            }
+        } catch (error) {
+            this.logError(message, error);
+        } finally {
+        }
+        Logging.getInstance().debug(`${message} end , where : ${JSON.stringify(where)}`);
+        return where;
     }
 
     getOrder(params) {
@@ -141,6 +200,7 @@ export default class GenericBo extends MyBase {
             let limit = this.getLimit(queryParams);
             let offset = this.getOffset(queryParams);
             let order = this.getOrder(queryParams);
+            let where =  this.buildSimpleFilter(queryParams);
 
             let findAllParams = {
                 raw: true
@@ -151,6 +211,9 @@ export default class GenericBo extends MyBase {
             }
             if (order != null) {
                 findAllParams.order = order;
+            }
+            if (where != null) {
+                findAllParams.where = where;
             }
             const { rows, count } = await modelClass.findAndCountAll(findAllParams);
             data.list = rows;
